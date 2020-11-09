@@ -22,11 +22,4 @@ class SnakesAndLadders(gym.Env):
 
 
 if __name__ == "__main__":
-    from gym.envs.classic_control import rendering
-    viewer = rendering.Viewer(800, 600)
-    
-    while True:
-        viewer.render()
-        if viewer.window_closed_by_user():
-            break
-    
+    pass
