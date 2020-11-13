@@ -16,15 +16,15 @@ class Board(object):
     """
     def __init__(self, env_args):
         #TODO(jhchen): unpack the `env_args`.
-        self.cols, self.rows, self.grid_size = env_args
+        self.cols, self.rows, self.grid_size, self.aisles = env_args
 
         # Creates a canvas with given size.
         self.viewer = rendering.Viewer(self.cols * self.grid_size + OFFSET * 2,
                                        self.rows * self.grid_size + OFFSET * 2)
         # A flag for checking whether the background is drawn.
-        self.background = None
+        self.flag_bg = None
         # A flag for checking whether the aisles (ladder and snake) is drawn.
-        self.aisles = None
+        self.flag_aisle = None
 
     def draw_background(self):
         size = self.grid_size
@@ -55,13 +55,20 @@ class Board(object):
         return True
 
     def draw_aisles(self):
+        for key, value in self.aisles.items():
+            if key > value:
+                select = 'Ladder'
+            else:
+                select = 'Snake'
+            #TODO(jhchen): compute aisles position.
+            # start_row = key %
         return True
 
     def render(self):
-        if self.background is None:
-            self.background = self.draw_background()
-        if self.aisles is None:
-            self.aisles = self.draw_aisles()
+        if self.flag_bg is None:
+            self.flag_bg = self.draw_background()
+        if self.flag_aisle is None:
+            self.flag_aisle = self.draw_aisles()
 
         return self.viewer.render()
 
@@ -113,7 +120,7 @@ class Aisle(object):
 
 
 if __name__ == "__main__":
-    b = Board('large')
+    b = Board((10, 10, 60, {1: 1}))
     while b.viewer.isopen:
         b.render()
 
