@@ -14,27 +14,17 @@ OFFSET = 10
 class Board(object):
     """A sample game board taken from ISLCollective.
     """
-    def __init__(self, size):
-        if size not in ['small', 'medium', 'large']:
-            print(f'Not supported size: "{size}", using "small".')
-            size = 'small'
-
-        self.cols = 10
-        if size == 'small':
-            self.rows = 10
-            self.grid_size = 60
-        elif size == 'medium':
-            self.rows = 20
-            self.grid_size = 45
-        elif size == 'large':
-            self.rows = 30
-            self.grid_size = 35
+    def __init__(self, env_args):
+        #TODO(jhchen): unpack the `env_args`.
+        self.cols, self.rows, self.grid_size = env_args
 
         # Creates a canvas with given size.
         self.viewer = rendering.Viewer(self.cols * self.grid_size + OFFSET * 2,
                                        self.rows * self.grid_size + OFFSET * 2)
-        # Background flag for checking whether the background is drawn.
+        # A flag for checking whether the background is drawn.
         self.background = None
+        # A flag for checking whether the aisles (ladder and snake) is drawn.
+        self.aisles = None
 
     def draw_background(self):
         size = self.grid_size
@@ -64,9 +54,14 @@ class Board(object):
                 self.viewer.add_geom(num_text)
         return True
 
+    def draw_aisles(self):
+        return True
+
     def render(self):
         if self.background is None:
             self.background = self.draw_background()
+        if self.aisles is None:
+            self.aisles = self.draw_aisles()
 
         return self.viewer.render()
 
@@ -77,7 +72,6 @@ class Board(object):
 class Text(object):
     """Packages `pyglet.text.Label` class for openAI `gym` rendering process.
     """
-    
     def __init__(self, text, font_size, x, y):
         self.label = pyglet.text.Label(text=text,
                                        font_size=font_size,
@@ -91,8 +85,35 @@ class Text(object):
         return self.label.draw()
 
 
+class Aisle(object):
+    """Packages `rendering.Viewer.Line` class with some custom attributes.
+    """
+    def __init__(self, select, start, end):
+        # The `glLineWidth` is not supported for unknown reason.
+        # The compromise is drawing two lines that closing to each other.
+        x1, y1 = start
+        x2, y2 = end
+        self.lines = []
+        self.lines.append(rendering.Line(start, end))
+        self.lines.append(rendering.Line((x1 + 1, y1), (x2 + 1, y2)))
+        if select == 'Ladder':
+            for line in self.lines:
+                line.set_color(0, 0, 255)
+        elif select == 'Snake':
+            for line in self.lines:
+                line.set_color(255, 0, 0)
+                line.add_attr(rendering.LineStyle(0x00FF))
+        else:
+            raise ValueError('select only supports "Ladder" or "Snake".')
+
+    def render(self):
+        for line in self.lines:
+            line.render()
+        return
+
+
 if __name__ == "__main__":
-    b = Board('medium')
+    b = Board('large')
     while b.viewer.isopen:
         b.render()
 
