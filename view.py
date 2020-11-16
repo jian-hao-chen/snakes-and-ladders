@@ -15,7 +15,6 @@ class Board(object):
     """A sample game board taken from ISLCollective.
     """
     def __init__(self, env_args):
-        #TODO(jhchen): unpack the `env_args`.
         self.cols, self.rows, self.grid_size, self.aisles = env_args
 
         # Creates a canvas with given size.
@@ -25,6 +24,19 @@ class Board(object):
         self.flag_bg = None
         # A flag for checking whether the aisles (ladder and snake) is drawn.
         self.flag_aisle = None
+
+    def get_coordinate(self, num_of_grid):
+        """Returns the coordinate by the number of given grid.
+        """
+        row = (num_of_grid - 1) // self.cols
+        col = (num_of_grid - 1) % self.cols
+        # If the number of the grid is in odd rows. (starts from 0)
+        if row % 2 == 1:
+            col = (self.cols - 1) - col
+        # Computes the bottom-left corner coordinate of the relative grid.
+        x = col * self.grid_size + OFFSET
+        y = row * self.grid_size + OFFSET
+        return (x, y)
 
     def draw_background(self):
         size = self.grid_size
@@ -40,7 +52,7 @@ class Board(object):
                 self.viewer.add_geom(grid)
 
                 # Claculates number.
-                # if the number of the grid is in even rows. (starts from 0)
+                # If the number of the grid is in even rows. (starts from 0)
                 if y % 2 == 0:
                     num = 1 + self.cols * y + x
                 else:
@@ -55,13 +67,25 @@ class Board(object):
         return True
 
     def draw_aisles(self):
+        size = self.grid_size
         for key, value in self.aisles.items():
-            if key > value:
+            if key < value:
                 select = 'Ladder'
             else:
                 select = 'Snake'
-            #TODO(jhchen): compute aisles position.
-            # start_row = key %
+
+            start_x, start_y = self.get_coordinate(key)
+            # To make the aisles start from the central of a grid.
+            start_x = start_x + size / 2
+            start_y = start_y + size / 2
+
+            end_x, end_y = self.get_coordinate(value)
+            # To make the aisles end to the central of a grid.
+            end_x = end_x + size / 2
+            end_y = end_y + size / 2
+
+            aisle = Aisle(select, (start_x, start_y), (end_x, end_y))
+            self.viewer.add_geom(aisle)
         return True
 
     def render(self):
@@ -117,11 +141,3 @@ class Aisle(object):
         for line in self.lines:
             line.render()
         return
-
-
-if __name__ == "__main__":
-    b = Board((10, 10, 60, {1: 1}))
-    while b.viewer.isopen:
-        b.render()
-
-    b.close()

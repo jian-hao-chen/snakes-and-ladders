@@ -32,11 +32,13 @@ def get_aisles(size):
     if size == 'small':
         return aisles
     elif size == 'medium':
-        for key, value in aisles.items():
+        org_dict = aisles.copy()
+        for key, value in org_dict.items():    
             aisles[key + 100] = value + 100
         return aisles
     elif size == 'large':
-        for key, value in aisles.items():
+        org_dict = aisles.copy()
+        for key, value in org_dict.items():
             aisles[key + 100] = value + 100
             aisles[key + 200] = value + 200
         return aisles
@@ -65,7 +67,7 @@ class SnakesAndLadders(gym.Env):
         self.aisles = get_aisles(size)
 
         env_args = (self.cols, self.rows, self.grid_size, self.aisles)
-        self.viewer = view.Board(env_args)
+        self.board = view.Board(env_args)
 
     def step(self, action):
         pass
@@ -74,8 +76,15 @@ class SnakesAndLadders(gym.Env):
         pass
 
     def render(self):
-        pass
+        return self.board.render()
+    
+    def close(self):
+        return self.board.close()
 
 
 if __name__ == "__main__":
-    pass
+    game = SnakesAndLadders('v0', 'medium')
+    while game.board.viewer.isopen:
+        game.render()
+    
+    game.close()
