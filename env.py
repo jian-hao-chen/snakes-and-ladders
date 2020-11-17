@@ -33,7 +33,7 @@ def get_aisles(size):
         return aisles
     elif size == 'medium':
         org_dict = aisles.copy()
-        for key, value in org_dict.items():    
+        for key, value in org_dict.items():
             aisles[key + 100] = value + 100
         return aisles
     elif size == 'large':
@@ -70,14 +70,19 @@ class SnakesAndLadders(gym.Env):
         self.board = view.Board(env_args)
 
     def step(self, action):
-        pass
+        # TODO(jhchen): Learning policy and game rules.
+        observation = None
+        reward = None
+        done = False
+        info = None
+        return (observation, reward, done, info)
 
     def reset(self):
         pass
 
     def render(self):
         return self.board.render()
-    
+
     def close(self):
         return self.board.close()
 
@@ -86,5 +91,5 @@ if __name__ == "__main__":
     game = SnakesAndLadders('v0', 'medium')
     while game.board.viewer.isopen:
         game.render()
-    
+
     game.close()
