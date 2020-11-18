@@ -6,6 +6,7 @@ Created on: 2020/11/09 15:49
 Contents
 """
 import pyglet
+
 from gym.envs.classic_control import rendering
 
 OFFSET = 10
@@ -33,9 +34,9 @@ class Board(object):
         # If the number of the grid is in odd rows. (starts from 0)
         if row % 2 == 1:
             col = (self.cols - 1) - col
-        # Computes the bottom-left corner coordinate of the relative grid.
-        x = col * self.grid_size + OFFSET
-        y = row * self.grid_size + OFFSET
+        # Computes the centroid coordinate of the relative grid.
+        x = col * self.grid_size + OFFSET + self.grid_size / 2
+        y = row * self.grid_size + OFFSET + self.grid_size / 2
         return (x, y)
 
     def draw_background(self):
@@ -67,32 +68,41 @@ class Board(object):
         return True
 
     def draw_aisles(self):
-        size = self.grid_size
         for key, value in self.aisles.items():
             if key < value:
                 select = 'Ladder'
             else:
                 select = 'Snake'
-
             start_x, start_y = self.get_coordinate(key)
-            # To make the aisles start from the central of a grid.
-            start_x = start_x + size / 2
-            start_y = start_y + size / 2
-
             end_x, end_y = self.get_coordinate(value)
-            # To make the aisles end to the central of a grid.
-            end_x = end_x + size / 2
-            end_y = end_y + size / 2
-
             aisle = Aisle(select, (start_x, start_y), (end_x, end_y))
             self.viewer.add_geom(aisle)
+
         return True
 
-    def render(self):
+    def render(self, state, info):
         if self.flag_bg is None:
             self.flag_bg = self.draw_background()
         if self.flag_aisle is None:
             self.flag_aisle = self.draw_aisles()
+
+        # Draws the piece to represent the current state.
+        radius = self.grid_size * 0.25
+        coord = self.get_coordinate(state)
+        piece = rendering.make_circle(radius)
+        # Don't know why the `set_color()` method of circle requires values
+        # between 0 and 1.
+        piece.set_color(139 / 255, 69 / 255, 19 / 255)
+        piece.add_attr(rendering.Transform(coord))
+        self.viewer.add_onetime(piece)
+
+        # If the piece pass through the 'ladder' or 'snake'.
+        if info is not None:
+            last_coord = self.get_coordinate(info)
+            last_piece = rendering.make_circle(radius, filled=False)
+            last_piece.set_color(94 / 255, 38 / 255, 18 / 255)
+            last_piece.add_attr(rendering.Transform(last_coord))
+            self.viewer.add_onetime(last_piece)
 
         return self.viewer.render()
 

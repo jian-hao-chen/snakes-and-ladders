@@ -11,42 +11,6 @@ import gym
 import view
 
 
-def get_aisles(size):
-    aisles = {
-        1: 38,
-        4: 14,
-        9: 31,
-        17: 7,
-        21: 42,
-        28: 84,
-        51: 67,
-        54: 34,
-        62: 19,
-        64: 60,
-        71: 91,
-        80: 100,
-        87: 24,
-        93: 73,
-        95: 75,
-        98: 79
-    }
-    if size == 'small':
-        return aisles
-    elif size == 'medium':
-        org_dict = aisles.copy()
-        for key, value in org_dict.items():
-            aisles[key + 100] = value + 100
-        return aisles
-    elif size == 'large':
-        org_dict = aisles.copy()
-        for key, value in org_dict.items():
-            aisles[key + 100] = value + 100
-            aisles[key + 200] = value + 200
-        return aisles
-    else:
-        return aisles
-
-
 class SnakesAndLadders(gym.Env):
     """Creates a virtual `Snakes and Ladders` board game environment.
     """
@@ -66,7 +30,7 @@ class SnakesAndLadders(gym.Env):
             self.rows = 30
             self.grid_size = 35
 
-        self.goal = self.rows * self.cols + 1
+        self.goal = self.rows * self.cols
         # The 'Ladders' and 'Snakes'.
         self.aisles = get_aisles(size)
         # The number of steps elapsed until the game over.
@@ -106,39 +70,44 @@ class SnakesAndLadders(gym.Env):
         self.steps = 0
         return
 
-    def render(self):
-        return self.board.render()
+    def render(self, observation, info):
+        return self.board.render(observation, info)
 
     def close(self):
         return self.board.close()
 
 
-class Agent(object):
-    """Creates a virtual agent for interacting with the environment.
-    """
-    def __init__(self, version):
-        if version == 'v0':
-            # Generates a dictionary that map 0 ~ 5 to 1 ~ 6.
-            self.action_space = dict((i, i + 1) for i in range(6))
-            # The action of this agent.
-            self.act = self.sample_v0
-        elif version == 'v1':
-            pass
-        elif version == 'v2':
-            pass
-        else:
-            raise ValueError(f'Unknown argument: {version}.')
-
-    def sample_v0(self):
-        n = len(self.action_space)
-        choice = np.random.randint(n)
-        return self.action_space[choice]
-    
-
-
-if __name__ == "__main__":
-    game = SnakesAndLadders('v0', 'medium')
-    while game.board.viewer.isopen:
-        game.render()
-
-    game.close()
+def get_aisles(size):
+    aisles = {
+        1: 38,
+        4: 14,
+        9: 31,
+        17: 7,
+        21: 42,
+        28: 84,
+        51: 67,
+        54: 34,
+        62: 19,
+        64: 60,
+        71: 91,
+        80: 100,
+        87: 24,
+        93: 73,
+        95: 75,
+        98: 79
+    }
+    if size == 'small':
+        return aisles
+    elif size == 'medium':
+        org_dict = aisles.copy()
+        for key, value in org_dict.items():
+            aisles[key + 100] = value + 100
+        return aisles
+    elif size == 'large':
+        org_dict = aisles.copy()
+        for key, value in org_dict.items():
+            aisles[key + 100] = value + 100
+            aisles[key + 200] = value + 200
+        return aisles
+    else:
+        return aisles
