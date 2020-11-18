@@ -7,7 +7,7 @@ Contents
 """
 import numpy as np
 import gym
-gym.spaces.Discrete
+
 import view
 
 
@@ -65,21 +65,46 @@ class SnakesAndLadders(gym.Env):
         elif size == 'large':
             self.rows = 30
             self.grid_size = 35
+
+        self.goal = self.rows * self.cols + 1
+        # The 'Ladders' and 'Snakes'.
         self.aisles = get_aisles(size)
+        # The number of steps elapsed until the game over.
+        self.steps = 0
+        # The state of game, which means the number of the current grid.
+        self.state = 0
 
         env_args = (self.cols, self.rows, self.grid_size, self.aisles)
         self.board = view.Board(env_args)
 
     def step(self, action):
-        # TODO(jhchen): Learning policy and game rules.
-        observation = None
+        self.state += action
+        # If pass through the goal by the action, go backwards.
+        if self.state > self.goal:
+            self.state = self.state - (self.state - self.goal)
+
+        # If encounter 'ladder' or 'snake', store the previous state in `info`.
+        if self.state in self.aisles:
+            info = self.state
+            self.state = self.aisles[self.state]
+        else:
+            info = None
+
+        # If reach the goal, this episode finished.
+        if self.state == self.goal:
+            done = True
+        else:
+            done = False
+
+        self.steps += 1
+        observation = self.state
         reward = None
-        done = False
-        info = None
         return (observation, reward, done, info)
 
     def reset(self):
-        pass
+        self.state = 0
+        self.steps = 0
+        return
 
     def render(self):
         return self.board.render()
