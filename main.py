@@ -11,38 +11,74 @@ import time
 from agent import Agent
 from env import SnakesAndLadders
 
-if __name__ == "__main__":
-    # Command line interface
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-v",
-                        "--version",
-                        choices=['v0', 'v1', 'v2'],
-                        required=True,
-                        help="select the version of game.")
-    parser.add_argument("-s",
-                        "--size",
-                        choices=['small', 'medium', 'large'],
-                        required=True,
-                        help="select the size of game board.")
-    parser.add_argument("-i",
-                        "--interval",
-                        type=float,
-                        default=0.5,
-                        help=("the interval time of each round." +
-                              " (default: 0.5 sec)"))
-    args = parser.parse_args()
+# Command line interface
+parser = argparse.ArgumentParser()
+parser.add_argument("-v",
+                    "--version",
+                    choices=['v0', 'v1', 'v2'],
+                    required=True,
+                    help="select the version of game.")
+parser.add_argument("-s",
+                    "--size",
+                    choices=['small', 'medium', 'large'],
+                    required=True,
+                    help="select the size of game board.")
+parser.add_argument("-i",
+                    "--interval",
+                    type=float,
+                    default=0.5,
+                    help=("the interval time of each round." +
+                          " (default: 0.5 sec)"))
+parser.add_argument("-e",
+                    "--episode",
+                    type=int,
+                    default=10,
+                    help="how many times to run.")
+args = parser.parse_args()
+VERSION = args.version
+SIZE = args.size
+EPISODES = args.episode
+INTERVAL = args.interval
 
+
+def std_temp_diff(env, agent, alpha, gamma, Lambda):
+    for ep in range(EPISODES):
+        last_state = 0
+        while env.board.viewer.isopen:
+            # Chooses the action to take by checking value table.
+            action = agent.seek(last_state)
+            observation, reward, done, info = env.step(action)
+            # If encounter 'ladder' or 'snake', info stored the state before
+            # enter the aisle.
+            if info is not None:
+                cur_state = info
+            else:
+                cur_state = observation
+            # Updates eligibility by observation.
+            agent.eligibility[cur_state] += 1
+            # Computes TD error.
+            delta = (gamma * agent.value_table[cur_state] + reward -
+                     agent.value_table[last_state])
+            # Updates the value table of agent.
+            agent.value_table += alpha * delta * agent.eligibility
+            # Updates the eligibility of agent.
+            agent.eligibility *= gamma * Lambda
+
+            env.render(observation, info)
+            time.sleep(INTERVAL)
+            if done:
+                print(f"Episode {ep+ 1} finished. Total steps: {env.steps}.")
+                env.reset()
+                break
+
+
+if __name__ == "__main__":
+    import numpy as np
     # Initializes game environment and agent.
-    game = SnakesAndLadders(args.version, args.size)
-    agent = Agent(args.version)
-    episode = 0
-    while game.board.viewer.isopen:
-        observation, reward, done, info = game.step(agent.act())
-        game.render(observation, info)
-        time.sleep(args.interval)
-        if done:
-            episode += 1
-            print(f'Episode {episode} finished. Total steps: {game.steps}.')
-            game.reset()
+    game = SnakesAndLadders(VERSION, SIZE)
+    agent = Agent(VERSION, game.goal)
+
+    if VERSION == 'v0':
+        std_temp_diff(game, agent, 0.1, 0.9, 0.9)
 
     game.close()
