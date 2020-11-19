@@ -42,8 +42,8 @@ class SnakesAndLadders(gym.Env):
         self.board = view.Board(env_args)
 
     def step(self, action):
-        last_state = self.state
         self.state += action
+        reward = 0
         # If pass through the goal by the action, go backwards.
         if self.state > self.goal:
             self.state = self.state - (self.state - self.goal)
@@ -52,10 +52,15 @@ class SnakesAndLadders(gym.Env):
         if self.state in self.aisles:
             info = self.state
             self.state = self.aisles[self.state]
+            # If encounter 'ladder'
+            if self.state > info:
+                reward += 10 + (self.state - info)
+            else:
+                reward += -10 + (self.state - info)
         else:
+            reward += -1
             info = None
 
-        reward = self.get_reward(self.state, last_state)
         # If reach the goal, give more reward and finish this episode.
         if self.state == self.goal:
             reward += 100
@@ -67,16 +72,13 @@ class SnakesAndLadders(gym.Env):
         observation = self.state
         return (observation, reward, done, info)
 
-    def get_reward(self, future_state, last_state):
-        return future_state - last_state
-
     def reset(self):
         self.state = 0
         self.steps = 0
         return
 
-    def render(self, observation, info):
-        return self.board.render(observation, info)
+    def render(self, observation, info, value):
+        return self.board.render(observation, info, value)
 
     def close(self):
         return self.board.close()

@@ -63,8 +63,10 @@ def std_temp_diff(env, agent, alpha, gamma, Lambda):
             agent.value_table += alpha * delta * agent.eligibility
             # Updates the eligibility of agent.
             agent.eligibility *= gamma * Lambda
+            # Updates last state.
+            last_state = cur_state
 
-            env.render(observation, info)
+            env.render(observation, info, agent.value_table[1:])
             time.sleep(INTERVAL)
             if done:
                 print(f"Episode {ep+ 1} finished. Total steps: {env.steps}.")

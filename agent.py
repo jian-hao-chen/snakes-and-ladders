@@ -29,8 +29,9 @@ class Agent(object):
     def seek(self, state):
         acts = self.action_space
         # Finds all probable states by action space
-        prob_states = np.array(list(acts.values()))
-        prob_states += state
+        prob_states = np.array(list(acts.values())) + state
+        prob_states = prob_states[prob_states<=100]
+
         candidate = self.value_table[prob_states]
         if candidate.all() == 0:
             return self.sample()

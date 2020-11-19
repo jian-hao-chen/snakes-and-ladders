@@ -80,7 +80,7 @@ class Board(object):
 
         return True
 
-    def render(self, state, info):
+    def render(self, state, info, value=None):
         if self.flag_bg is None:
             self.flag_bg = self.draw_background()
         if self.flag_aisle is None:
@@ -104,6 +104,17 @@ class Board(object):
             last_piece.add_attr(rendering.Transform(last_coord))
             self.viewer.add_onetime(last_piece)
 
+        if value is not None:
+            for i, v in enumerate(value):
+                x, y = self.get_coordinate(i + 1)
+                v_str = Text(text=f"{v:.2f}",
+                             font_size=self.grid_size / 5,
+                             x=x,
+                             y=y,
+                             anchor_x="center",
+                             anchor_y="center")
+                self.viewer.add_onetime(v_str)
+
         return self.viewer.render()
 
     def close(self):
@@ -113,14 +124,21 @@ class Board(object):
 class Text(object):
     """Packages `pyglet.text.Label` class for openAI `gym` rendering process.
     """
-    def __init__(self, text, font_size, x, y):
+    def __init__(self,
+                 text,
+                 font_size,
+                 x,
+                 y,
+                 anchor_x="left",
+                 anchor_y="top",
+                 color=(0, 0, 0, 255)):
         self.label = pyglet.text.Label(text=text,
                                        font_size=font_size,
                                        x=x,
                                        y=y,
-                                       anchor_x="left",
-                                       anchor_y="top",
-                                       color=(0, 0, 0, 255))
+                                       anchor_x=anchor_x,
+                                       anchor_y=anchor_y,
+                                       color=color)
 
     def render(self):
         return self.label.draw()
