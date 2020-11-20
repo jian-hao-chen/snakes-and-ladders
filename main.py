@@ -34,11 +34,23 @@ parser.add_argument("-e",
                     type=int,
                     default=10,
                     help="how many times to run.")
+
+parser.add_argument("-r",
+                    "--random",
+                    type=int,
+                    default=0,
+                    help="how many random dice. (default: 0)")
+parser.add_argument("-V",
+                    "--visualize",
+                    action="store_true",
+                    help="set to display the training process.")
 args = parser.parse_args()
 VERSION = args.version
 SIZE = args.size
 EPISODES = args.episode
 INTERVAL = args.interval
+NUM_RAND_DICE = args.random
+VISAULIZE = args.visualize
 
 
 def std_temp_diff(env, agent, alpha, gamma, Lambda):
@@ -66,12 +78,20 @@ def std_temp_diff(env, agent, alpha, gamma, Lambda):
             # Updates last state.
             last_state = cur_state
 
-            env.render(observation, info, agent.value_table[1:])
+            if VISAULIZE:
+                env.render(observation, info, agent.value_table[1:])
             time.sleep(INTERVAL)
             if done:
                 print(f"Episode {ep+ 1} finished. Total steps: {env.steps}.")
                 env.reset()
                 break
+
+
+def q_learn(env, agent):
+    for ep in range(EPISODES):
+        last_state = 0
+        while env.board.viewer.isopen:
+            pass
 
 
 if __name__ == "__main__":

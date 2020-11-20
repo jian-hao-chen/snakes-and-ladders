@@ -30,7 +30,7 @@ class Agent(object):
         acts = self.action_space
         # Finds all probable states by action space
         prob_states = np.array(list(acts.values())) + state
-        prob_states = prob_states[prob_states<=100]
+        prob_states = prob_states[prob_states <= 100]
 
         candidate = self.value_table[prob_states]
         if candidate.all() == 0:
@@ -39,6 +39,17 @@ class Agent(object):
             return acts[np.argmax(candidate)]
 
     def sample(self):
-        n = len(self.action_space)
-        choice = np.random.randint(n)
-        return self.action_space[choice]
+        # Single die sampling.
+        if type(self.action_space) == dict:
+            n = len(self.action_space)
+            choice = np.random.randint(n)
+            return self.action_space[choice]
+        # Multiple dice sampling.
+        elif type(self.action_space) == list:
+            n_dice = len(self.action_space)
+            rand_dice = np.random.randint(n_dice)
+            n = len(self.action_space[rand_dice])
+            choice = np.random.randint(n)
+            return self.action_space[rand_dice][choice]
+        else:
+            raise TypeError(f'Unknown action space: {type(self.action_space)}')
