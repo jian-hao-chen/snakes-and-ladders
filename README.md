@@ -1,12 +1,71 @@
 # Reinforcement Learning - Assignment 1
 A `Snakes and Ladders` game for Reinforcement Learning algorithms.
 
-| experiments \ spots                                                    | 100                       | 200                        | 300                       |
-| ---------------------------------------------------------------------- | ------------------------- | -------------------------- | ------------------------- |
-| **Snake-and-Ladders-v0**                                               | ![](img/v0_small_0.1.png) | ![](img/v0_medium_0.9.png) | ![](img/v0_large_0.9.png) |
-| **Snake-and-Ladders-v1**<br>2 dice [1,1,3,3,5,5]<br>and [2,2,4,4,6,6]  |                           |                            |                           |
-| **Snake-and-Ladders-v1**<br>2 random dice                              |                           |                            |                           |
-| **Snake-and-Ladders-v1**<br>4 random dice                              |                           |                            |                           |
-| **Snake-and-Ladders-v1**<br>6 random dice                              |                           |                            |                           |
-| **Snake-and-Ladders-v2**<br>6 random dice, skip<br>ladders, and drones |                           |                            |                           |
+## Install
+1. Create a virtual python environment in the directory, and enter it. (**Optional**)
+```bash
+$ virtualenv venv
+```
+Enter the virtual environment after the environment is created successfully.
+```bash
+# Windows
+$ venv\Scripts\activate.bat
+# Linux / MacOS
+$ source venv/bin/activate
+```
+> If you don't have virtualenv, you can install it by executing `pip install virtualenv`.
 
+2. Install the required packages.
+```bash
+(venv) $ pip install -r requirements.txt 
+```
+
+## How to run
+### Usage
+```bash
+main.py [-h] -v {v0,v1,v2} -s {small,medium,large} [-i INTERVAL]
+        [-E EPISODE] [-r RANDOM] [-V] [-a ALPHA] [-y GAMMA]     
+        [-e EPSILON] [-l LAMBDA] [-q]
+```
+### Arguments description
+```
+optional arguments:
+  -h, --help            show this help message and exit
+
+  -v {v0,v1,v2}, --version {v0,v1,v2}
+                        select the version of game.
+
+  -s {small,medium,large}, --size {small,medium,large}
+                        select the size of game board.
+
+  -i INTERVAL, --interval INTERVAL
+                        the interval time of each round. (default: 0.5 sec)
+
+  -E EPISODE, --episode EPISODE
+                        how many times to run.
+
+  -r RANDOM, --random RANDOM
+                        how many random dice. (default: 0)
+
+  -V, --visualize       set to display the training process.
+
+  -a ALPHA, --alpha ALPHA
+                        learning rate. (default: 0.1)
+
+  -y GAMMA, --gamma GAMMA
+                        decay rate. (default: 0.9)
+
+  -e EPSILON, --epsilon EPSILON
+                        epsilon used in `eps-greedy`. (default: 0.2)
+
+  -l LAMBDA, --lambda LAMBDA
+                        lambda used in `TD(lambda)`. (default: 0.9)
+
+  -q, --q               Use Q-Learning as training policy.
+```
+
+For example:
+```
+$ python main.py -v v0 -s small -E 10 -V
+```
+This command will run a **v0** version evaluation with **100 spots** for **10 episodes** and save the results as an `.png` image.
